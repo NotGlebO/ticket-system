@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>View Tickets</title>
+
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            margin: 0;
+            padding: 100px 40px 40px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .create-button {
+            background: #222;
+            color: white;
+            padding: 10px 16px;
+            text-decoration: none;
+            border-radius: 6px;
+        }
+
+        .ticket {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 18px;
+            margin-bottom: 15px;
+        }
+        .ticket-open {
+            border-left: 5px solid #d32f2f;
+        }
+
+        .ticket-mine {
+            border-left: 5px solid #2e7d32;
+        }
+
+        .ticket-other {
+            border-left: 5px solid #f9a825;
+        }
+
+        .ticket-completed {
+            border-left: 5px solid #1976d2;
+        }
+
+        .ticket-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .ticket-number {
+            font-size: 13px;
+            color: #777;
+        }
+
+        .ticket-date {
+            font-size: 13px;
+            color: #777;
+        }
+
+        .ticket h3 {
+            margin: 8px 0;
+        }
+
+        .ticket-description {
+            margin: 0;
+            color: #555;
+
+            overflow-wrap: anywhere;
+            word-break: break-word;
+
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            line-clamp: 3;
+            -webkit-line-clamp: 3;
+
+            overflow: hidden;
+            line-height: 1.4;
+            max-height: 4.2em;
+        }
+
+        .ticket-info {
+            display: flex;
+            gap: 25px;
+            margin-top: 15px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .ticket-author {
+            margin-top: 14px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+            color: #888;
+            font-size: 13px;
+        }
+
+        .ticket-actions {
+            margin-top: 15px;
+        }
+
+        .ticket-actions form {
+            margin: 0;
+        }
+
+        .my-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .take-button,
+        .release-button,
+        .complete-button {
+            padding: 8px 14px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .take-button,
+        .complete-button {
+            background: #333;
+            color: white;
+        }
+
+        .take-button:hover,
+        .complete-button:hover {
+            background: #555;
+        }
+
+        .release-button {
+            background: #ddd;
+            color: #333;
+        }
+
+        .release-button:hover {
+            background: #ccc;
+        }
+
+
+        .completed-label {
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .open-ticket-button {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 8px 14px;
+            background: #333;
+            color: white;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 13px;
+        }
+
+        .open-ticket-button:hover {
+            background: #555;
+        }
+
+        .filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .filters select {
+            padding: 9px 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            background: white;
+            font-size: 14px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+<div th:replace="~{fragments/header :: header}"></div>
+
+<div class="container">
+
+    <div class="page-header">
+
+        <h1>View Tickets</h1>
+
+        <a class="create-button"
+           th:href="@{/tickets/new}">
+            + Create Ticket
+        </a>
+
+    </div>
+    <div class="filters">
+
+        <select id="statusFilter">
+            <option value="ALL">All tickets</option>
+            <option value="OPEN">Not assigned</option>
+            <option value="IN_PROGRESS">In progress</option>
+            <option value="COMPLETED">Completed</option>
+        </select>
+
+        <select id="sortFilter">
+            <option value="date-new">Newest tickets</option>
+            <option value="date-old">Oldest tickets</option>
+            <option value="message-new">Latest message</option>
+        </select>
+
+    </div>
+
+    <div class="tickets-container">
+
+    <div class="ticket"
+            th:each="ticket : ${tickets}"
+            th:data-status="${ticket.status}"
+            th:data-date="${ticket.createdAt}"
+            th:classappend="${
+                ticket.status == T(com.glebs.ticket_system.TicketStatus).COMPLETED
+                    ? ' ticket-completed'
+                    : ticket.assignedTo == null
+                        ? ' ticket-open'
+                        : ticket.assignedTo.username == #authentication.name
+                            ? ' ticket-mine'
+                            : ' ticket-other'
+            }">
+
+                <!-- Номер и дата -->
+                <div class="ticket-top">
+
+                    <div class="ticket-number">
+                        Ticket #
+                        <span th:text="${ticket.ticketNumber}">
+                            123456
+                        </span>
+                    </div>
+
+                    <div class="ticket-date">
+                        <span th:text="${ticket.createdAt != null
+                            ? #temporals.format(ticket.createdAt, 'dd.MM.yyyy HH:mm')
+                            : 'Unknown'}">
+                        </span>
+                    </div>
+
+                </div>
+
+
+                <!-- Название -->
+                <h3 th:text="${ticket.title}">
+                    Ticket title
+                </h3>
+
+
+                <!-- Описание -->
+                <p class="ticket-description"
+                th:text="${ticket.description}">
+                    Ticket description
+                </p>
+
+
+                <!-- Статус и сотрудник -->
+                <div class="ticket-info">
+
+                    <div>
+                        Status:
+                        <strong th:text="${ticket.status != null
+                            ? ticket.status
+                            : 'OPEN'}">
+                            OPEN
+                        </strong>
+                    </div>
+
+
+                    <div th:if="${ticket.assignedTo == null}">
+                        Assigned to:
+                        <strong>—</strong>
+                    </div>
+
+
+                    <div th:if="${ticket.assignedTo != null}">
+                        Assigned to:
+                        <strong th:text="${ticket.assignedTo.username}">
+                            admin
+                        </strong>
+                    </div>
+
+                </div>
+
+
+                <!-- Автор заявки -->
+                <div class="ticket-author">
+
+                    <span th:text="${ticket.name}">
+                        John Smith
+                    </span>
+
+                    ·
+
+                    <span th:text="${ticket.email}">
+                        john@example.com
+                    </span>
+
+                </div>
+
+
+                <!-- Действия -->
+                <div class="ticket-actions">
+
+
+                    <!-- Никто ещё не взял тикет -->
+                    <form th:if="${ticket.assignedTo == null
+                            and ticket.status != T(com.glebs.ticket_system.TicketStatus).COMPLETED}"
+                        th:action="@{/tickets/{id}/take(id=${ticket.id})}"
+                        method="post">
+
+                        <button type="submit"
+                                class="take-button">
+                            ✓ Take Ticket
+                        </button>
+
+                    </form>
+
+
+                    <!-- Тикет взят текущим сотрудником -->
+                    <div th:if="${ticket.assignedTo != null
+                            and ticket.assignedTo.username == #authentication.name
+                            and ticket.status != T(com.glebs.ticket_system.TicketStatus).COMPLETED}"
+                        class="my-actions">
+
+
+                        <form th:action="@{/tickets/{id}/release(id=${ticket.id})}"
+                            method="post">
+
+                            <button type="submit"
+                                    class="release-button">
+                                Release
+                            </button>
+
+                        </form>
+
+
+                        <form th:action="@{/tickets/{id}/complete(id=${ticket.id})}"
+                            method="post">
+
+                            <button type="submit"
+                                    class="complete-button">
+                                ✓ Complete
+                            </button>
+
+                        </form>
+
+                    </div>
+
+
+                   
+
+
+                    <!-- Завершённый тикет -->
+                    <div th:if="${ticket.status == T(com.glebs.ticket_system.TicketStatus).COMPLETED}"
+                        class="completed-label">
+
+                        ✓ Completed
+
+                    </div>
+
+                </div>
+                <a class="open-ticket-button"
+                    th:href="@{/tickets/{id}(id=${ticket.id})}">
+                        Open Ticket
+                </a>
+            </div>
+    </div>
+</div>
+<script>
+    const statusFilter = document.getElementById("statusFilter");
+    const sortFilter = document.getElementById("sortFilter");
+
+    function filterTickets() {
+        const selectedStatus = statusFilter.value;
+
+        document.querySelectorAll(".ticket").forEach(ticket => {
+
+            const status = ticket.dataset.status;
+
+            const visible =
+                selectedStatus === "ALL" ||
+                status === selectedStatus;
+
+            ticket.style.display = visible ? "" : "none";
+        });
+    }
+
+    statusFilter.addEventListener("change", filterTickets);
+
+    function sortTickets() {
+
+        const container = document.querySelector(".tickets-container");
+
+        const tickets = Array.from(
+            document.querySelectorAll(".ticket")
+        );
+
+        if (sortFilter.value === "date-new") {
+            tickets.sort((a, b) =>
+                new Date(b.dataset.date) - new Date(a.dataset.date)
+            );
+        }
+
+        if (sortFilter.value === "date-old") {
+            tickets.sort((a, b) =>
+                new Date(a.dataset.date) - new Date(b.dataset.date)
+            );
+        }
+
+        tickets.forEach(ticket => {
+            container.appendChild(ticket);
+        });
+    }
+
+    sortFilter.addEventListener("change", sortTickets);
+</script>
+
+</body>
+</html>

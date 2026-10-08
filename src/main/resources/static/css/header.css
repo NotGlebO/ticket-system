@@ -1,0 +1,136 @@
+.top-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+
+    height: 72px;
+    padding: 0 30px;
+    box-sizing: border-box;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    /* Панель перекрывает прокручиваемый контент */
+    background: #f5f5f5;
+
+    /* Красивая нижняя граница */
+    border-bottom: 1px solid #d6d6d6;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+
+    z-index: 1000;
+
+    font-family: Arial, sans-serif;
+}
+
+.home-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 42px;
+    height: 42px;
+
+    background: #333;
+    color: white;
+
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 20px;
+
+    box-sizing: border-box;
+}
+
+.home-button:hover {
+    background: #555;
+}
+
+.auth-area {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    padding: 6px 8px;
+
+    background: white;
+    border: 1px solid #d6d6d6;
+    border-radius: 9px;
+
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+
+    /* Не разрешаем hot bar складываться */
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.user-area {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    flex-wrap: nowrap;
+    white-space: nowrap;
+}
+
+.user-area > span {
+    padding: 0 6px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+}
+
+.user-area form {
+    margin: 0;
+    flex-shrink: 0;
+}
+
+.auth-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    height: 34px;
+    padding: 0 12px;
+
+    background: #333;
+    color: white;
+
+    border: none;
+    border-radius: 6px;
+    text-decoration: none;
+
+    font-size: 13px;
+    cursor: pointer;
+    box-sizing: border-box;
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+.auth-button:hover {
+    background: #555;
+}
+.admin-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    height: 34px;
+    padding: 0 12px;
+
+    background: #333;
+    color: white;
+
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 13px;
+
+    box-sizing: border-box;
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+.admin-button:hover {
+    background: #555;
+}

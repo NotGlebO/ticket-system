@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+
+    <meta charset="UTF-8">
+    <title>My Tickets</title>
+
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+
+    <style>
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            margin: 0;
+            padding: 100px 40px 40px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .ticket {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .ticket h3 {
+            margin-top: 0;
+        }
+
+        .ticket-id {
+            color: #777;
+            font-size: 14px;
+        }
+        .ticket p {
+            overflow-wrap: anywhere;
+            word-break: break-word;
+
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            line-clamp: 3;
+            -webkit-line-clamp: 3;
+
+            overflow: hidden;
+            line-height: 1.4;
+            max-height: 4.2em;
+        }
+        .empty-message {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+
+            padding: 30px;
+            text-align: center;
+            color: #666;
+        }
+        .ticket-date {
+            margin-top: 4px;
+            margin-bottom: 12px;
+            font-size: 13px;
+            color: #777;
+        }
+        .ticket-status {
+            margin-bottom: 12px;
+            font-size: 13px;
+        }
+        .open-ticket-button {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 8px 14px;
+            background: #333;
+            color: white;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 13px;
+        }
+
+        .open-ticket-button:hover {
+            background: #555;
+        }
+    </style>
+
+</head>
+
+<body>
+
+<div th:replace="~{fragments/header :: header}"></div>
+
+
+<div class="container">
+
+    <h1>My Tickets</h1>
+
+
+    <!-- Если тикетов нет -->
+    <div th:if="${#lists.isEmpty(tickets)}"
+         class="empty-message">
+
+        You don't have any tickets yet.
+
+    </div>
+
+
+    <!-- Тикеты текущего пользователя -->
+    <div th:each="ticket : ${tickets}"
+         class="ticket">
+
+        <div class="ticket-id">
+            Ticket #<span th:text="${ticket.ticketNumber}"></span>
+        </div>
+        <div class="ticket-date">
+            Created:
+            <span th:text="${ticket.createdAt != null
+                ? #temporals.format(ticket.createdAt, 'dd.MM.yyyy HH:mm')
+                : 'Unknown'}">
+            </span>
+        </div>
+        <div class="ticket-status">
+            Status:
+            <strong th:text="${ticket.status != null ? ticket.status : 'OPEN'}"></strong>
+        </div>
+
+        <h3 th:text="${ticket.title}">
+            Ticket title
+        </h3>
+
+        <p th:text="${ticket.description}">
+            Ticket description
+        </p>
+        <a class="open-ticket-button"
+            th:href="@{/tickets/{id}(id=${ticket.id})}">
+                Open Ticket
+        </a>
+    </div>
+    
+</div>
+
+</body>
+</html>

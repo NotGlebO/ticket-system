@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<body>
+
+<header th:fragment="header" class="top-bar">
+
+    <!-- HOME всегда виден -->
+    <a th:href="@{/}" class="home-button" title="Home">
+        🏠
+    </a>
+
+
+    <!-- Правая часть -->
+    <div class="auth-area">
+
+        <!-- Если пользователь НЕ вошёл -->
+        <a sec:authorize="!isAuthenticated()"
+        th:href="@{/login}"
+        class="auth-button">
+            Login
+        </a>
+
+        <!-- Если пользователь вошёл -->
+        <div sec:authorize="isAuthenticated()"
+            class="user-area">
+
+            <!-- Имя пользователя -->
+            <span sec:authentication="name"></span>
+
+            <!-- Только для ADMIN -->
+            <a sec:authorize="hasRole('ADMIN')"
+            th:href="@{/admin}"
+            class="admin-button">
+                Admin Panel
+            </a>
+
+            <!-- Logout -->
+            <form th:action="@{/logout}" method="post">
+                <button type="submit"
+                        class="auth-button">
+                    Logout
+                </button>
+            </form>
+
+        </div>
+
+    </div>
+
+</header>
+
+</body>
+</html>

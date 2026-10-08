@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+    <title>Ticket</title>
+
+    <link rel="stylesheet"
+          th:href="@{/css/header.css}">
+
+    <style>
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            margin: 0;
+            padding: 100px 40px 40px;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: 0 auto;
+        }
+
+        .ticket-card {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .ticket-meta {
+            display: flex;
+            gap: 25px;
+            margin-top: 12px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .chat {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .message {
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+
+        /* Моё сообщение */
+        .my-message {
+            background: #eeeeee;
+            color: #111;
+        }
+
+        /* Сообщение другого человека */
+        .other-message {
+            background: #1976d2;
+            color: white;
+        }
+
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 7px;
+            font-size: 13px;
+        }
+
+        .message-user {
+            font-weight: bold;
+        }
+
+        .my-message .message-time {
+            color: #888;
+        }
+
+        .other-message .message-time {
+            color: #8abafa;
+        }
+
+        .message-text {
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+
+        .system-message {
+            margin: 12px 0;
+            padding: 10px 14px;
+
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+
+            text-align: center;
+            color: #666;
+            font-size: 13px;
+        }
+
+        .system-message-time {
+            margin-left: 8px;
+            color: #aaa;
+            font-size: 12px;
+        }
+        .empty-chat {
+            color: #888;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .message-form {
+            margin-top: 20px;
+            border-top: 1px solid #ddd;
+            padding-top: 20px;
+        }
+
+        .ticket-customer {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #555;
+        }
+        .description-wrapper {
+            margin-top: 10px;
+        }
+
+        .ticket-description {
+            margin: 0;
+            line-height: 1.5;
+
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+
+        .ticket-description.collapsed {
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            line-clamp: 4;  
+            -webkit-line-clamp: 4;
+
+            overflow: hidden;
+            max-height: 6em;
+        }
+
+        .description-toggle {
+            margin-top: 8px;
+
+            padding: 0;
+            border: none;
+            background: none;
+
+            color: #555;
+            font-size: 13px;
+            cursor: pointer;
+
+            text-decoration: underline;
+        }
+
+        .description-toggle:hover {
+            color: #000;
+        }
+
+        .message-input-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .message-input-wrapper textarea {
+            width: 100%;
+            min-height: 90px;
+
+            padding: 12px 50px 12px 12px;
+
+            box-sizing: border-box;
+            resize: vertical;
+
+            border: 1px solid #ccc;
+            border-radius: 7px;
+
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+        }
+
+        .send-button {
+            position: absolute;
+
+            right: 12px;
+            bottom: 12px;
+
+            width: 36px;
+            height: 36px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border: none;
+            border-radius: 50%;
+
+            background: #333;
+            color: white;
+
+            font-size: 19px;
+            cursor: pointer;
+
+            transition: 0.15s;
+        }
+
+        .send-button:hover {
+            background: #555;
+        }
+
+        .send-button:active {
+            transform: scale(0.95);
+        }
+
+        .back-button {
+            margin-bottom: 15px;
+            padding: 8px 14px;
+
+            background: white;
+            color: #333;
+
+            border: 1px solid #ccc;
+            border-radius: 6px;
+
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .back-button:hover {
+            background: #eee;
+        }
+    </style>
+
+</head>
+
+<body>
+
+<div th:replace="~{fragments/header :: header}"></div>
+
+<div class="container">
+
+    <!-- Информация о тикете -->
+    <button type="button"
+            class="back-button"
+            onclick="history.back()">
+        ← Back
+    </button>
+
+    <div class="ticket-card">
+
+        <h2>
+            Ticket #
+            <span th:text="${ticket.ticketNumber}">
+                123456
+            </span>
+        </h2>
+
+        <h3 th:text="${ticket.title}">
+            Ticket title
+        </h3>
+
+        <div class="description-wrapper">
+
+            <p id="ticketDescription"
+            class="ticket-description collapsed"
+            th:text="${ticket.description}">
+                Description
+            </p>
+
+            <button type="button"
+                    id="descriptionToggle"
+                    class="description-toggle"
+                    onclick="toggleDescription()">
+                Show description
+            </button>
+
+        </div>
+
+        <div class="ticket-customer">
+
+            <span th:if="${ticket.user != null}">
+                Created by:
+                <strong th:text="${ticket.user.username}">
+                    username
+                </strong>
+
+                —
+                
+                <strong th:text="${ticket.name}">
+                    Name Surname
+                </strong>
+            </span>
+
+            <span th:if="${ticket.user == null}">
+                Created by:
+                <strong>Guest</strong>
+
+                —
+
+                <strong th:text="${ticket.name}">
+                    Name Surname
+                </strong>
+            </span>
+
+        </div>
+
+        <div class="ticket-meta">
+
+            <span>
+                Status:
+                <strong th:text="${ticket.status != null
+                    ? ticket.status
+                    : 'OPEN'}">
+                    OPEN
+                </strong>
+            </span>
+
+            <span>
+                Created:
+                <strong th:text="${ticket.createdAt != null
+                    ? #temporals.format(
+                        ticket.createdAt,
+                        'dd.MM.yyyy HH:mm')
+                    : 'Unknown'}">
+                </strong>
+            </span>
+
+            <span th:if="${ticket.assignedTo != null}">
+                Support:
+                <strong th:text="${ticket.assignedTo.username}">
+                </strong>
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <!-- Чат -->
+
+    <div class="chat">
+
+        <h2>Messages</h2>
+
+
+        <!-- Пока сообщений нет -->
+
+        <div th:if="${#lists.isEmpty(messages)}"
+             class="empty-chat">
+
+            No messages yet.
+
+        </div>
+
+
+        <!-- Сообщения -->
+
+        <div th:each="msg : ${messages}">
+
+            <!-- Системное сообщение -->
+            <div th:if="${msg.systemMessage}"
+                class="system-message">
+
+                <span th:text="${msg.message}">
+                    System message
+                </span>
+
+                <span class="system-message-time"
+                    th:text="${#temporals.format(
+                        msg.createdAt,
+                        'dd.MM.yyyy HH:mm')}">
+                </span>
+
+            </div>
+
+
+            <!-- Обычное сообщение -->
+            <div th:unless="${msg.systemMessage}"
+                class="message"
+                th:classappend="${msg.user.username == #authentication.name}
+                    ? ' my-message'
+                    : ' other-message'">
+
+                <div class="message-header">
+
+                    <span class="message-user"
+                        th:text="${msg.user.username}">
+                        username
+                    </span>
+
+                    <span class="message-time"
+                        th:text="${#temporals.format(
+                            msg.createdAt,
+                            'dd.MM.yyyy HH:mm')}">
+                    </span>
+
+                </div>
+
+                <div class="message-text"
+                    th:text="${msg.message}">
+                    Message
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Отправка -->
+
+        <form id="messageForm"
+            class="message-form"
+            th:action="@{/tickets/{id}/messages(id=${ticket.id})}"
+            method="post">
+
+            <div class="message-input-wrapper">
+
+                <textarea id="messageInput"
+                        name="message"
+                        maxlength="3000"
+                        required
+                        placeholder="Write a message..."></textarea>
+
+                <button type="submit"
+                        class="send-button"
+                        title="Send message">
+                    ➤
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+<script>
+    const description = document.getElementById("ticketDescription");
+    const button = document.getElementById("descriptionToggle");
+
+    // Проверяем, есть ли текст, который скрыт из-за ограничения строк
+    function checkDescription() {
+        if (description.scrollHeight <= description.clientHeight) {
+            button.style.display = "none";
+        }
+    }
+
+    function toggleDescription() {
+        const isCollapsed =
+            description.classList.contains("collapsed");
+
+        if (isCollapsed) {
+            description.classList.remove("collapsed");
+            button.textContent = "Hide description";
+        } else {
+            description.classList.add("collapsed");
+            button.textContent = "Show description";
+        }
+    }
+
+    checkDescription();
+
+    const messageInput = document.getElementById("messageInput");
+    const messageForm = document.getElementById("messageForm");
+
+    messageInput.addEventListener("keydown", function(event) {
+
+        if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault();
+
+            if (messageInput.value.trim() !== "") {
+                messageForm.requestSubmit();
+            }
+        }
+    });
+
+
+</script>
+
+</body>
+</html>
